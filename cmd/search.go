@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/zquestz/s/providers"
+	"github.com/zquestz/s/server"
 )
 
 const (
@@ -21,6 +22,8 @@ var verbose bool
 var provider string
 var listProviders bool
 var binary string
+var serverMode bool
+var port int
 
 // SearchCmd is the main command for Cobra.
 var SearchCmd = &cobra.Command{
@@ -51,6 +54,10 @@ func prepareFlags() {
 		&listProviders, "list-providers", "l", false, "list supported providers")
 	SearchCmd.PersistentFlags().StringVarP(
 		&binary, "binary", "b", "", "binary to launch search uri")
+	SearchCmd.PersistentFlags().BoolVarP(
+		&serverMode, "server", "s", false, "launch web server")
+	SearchCmd.PersistentFlags().IntVarP(
+		&port, "port", "", 8080, "server port")
 }
 
 // Where all the work happens.
@@ -62,6 +69,15 @@ func performCommand(cmd *cobra.Command, args []string) error {
 
 	if listProviders {
 		fmt.Printf(providers.DisplayProviders())
+		return nil
+	}
+
+	if serverMode {
+		err := server.Run(port, provider)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	}
 
